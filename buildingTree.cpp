@@ -39,6 +39,13 @@ struct BstNode
     Node* node;
     BstNode* left;
     BstNode* right;
+    BstNode()
+    {
+        dist = 0;
+        node = NULL;
+        left = NULL;
+        right = NULL;
+    }
     BstNode(float dist)
     {
         this->dist = dist;
@@ -69,6 +76,63 @@ public:
             getlist(p->left,l);
             getlist(p->middle,l);
             getlist(p->right,l);
+        }
+    }
+    BstNode* getBST(Node* p)
+    {
+        list<Node*> l;
+        getlist(p,l);
+        Node* temp = l.front();
+        l.pop_front();
+        BstNode* root1 = new BstNode(temp->bld.dist);
+        root1->node = temp;
+        BstNode* p1 = root1;
+        while(!l.empty())
+        {
+            BstNode* q1;
+            temp = l.front();
+            l.pop_front();
+            BstNode* q2 = new BstNode(temp->bld.dist);
+            q2->node = temp;
+            p1 = root1;
+            if(temp->bld.dist <= root1->dist)
+            {
+                while(p1 != NULL)
+                {
+                    q1 = p1;
+                    p1 = p1->left;
+                }
+            }
+            else
+            {
+                while(p1 != NULL)
+                {
+                    q1 = p1;
+                    p1 = p1->right;
+                }
+            }
+            if(temp->bld.dist <= root1->dist)
+            {
+                q1->left = q2;
+            }
+            else
+            {
+                q1->right = q2;
+            }
+        }
+        return root1;
+    }
+    void inOrder(BstNode* temp)
+    {
+        if(temp == NULL)
+        {
+            return;
+        }
+        else
+        {
+            inOrder(temp->left);
+            cout<<temp->dist<<endl;
+            inOrder(temp->right);
         }
     }
     void insert(BldInfo b)
@@ -131,8 +195,6 @@ int main()
 
     Node* root = b.getRoot();
 
-    list<Node*> temp;
-    b.getlist(root,temp);
-    for(auto const &i : temp)
-        cout<<i<<endl;
+    BstNode* node = b.getBST(root);
+    b.inOrder(node);
 }
