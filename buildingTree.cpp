@@ -95,17 +95,14 @@ public:
             BstNode* q2 = new BstNode(temp->bld.dist);
             q2->node = temp;
             p1 = root1;
-            if(temp->bld.dist <= root1->dist)
+            while(p1 != NULL)
             {
-                while(p1 != NULL)
+                if(temp->bld.dist <= root1->dist)
                 {
                     q1 = p1;
                     p1 = p1->left;
                 }
-            }
-            else
-            {
-                while(p1 != NULL)
+                else
                 {
                     q1 = p1;
                     p1 = p1->right;
