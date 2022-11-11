@@ -88,20 +88,20 @@ public:
             p->right = node;
     }
 };
-int main()
-{
-    static BldInfo b1(1996,10,2.6), b2(1974,15,6.2), b3(2001,12,1.5);
-    static BldInfo b4(1996,4,3.0), b5(1976,6,5.1), b6(2004,34,3.4);
-
-    BST<BldInfo,float> tree;
-    tree.insertTree(&b1,b1.dist);
-    tree.insertTree(&b2,b2.dist);
-    tree.insertTree(&b3,b3.dist);
-    tree.insertTree(&b4,b4.dist);
-    tree.insertTree(&b5,b5.dist);
-    tree.insertTree(&b6,b6.dist);
-
-    BSTnode<BldInfo,float>* root = tree.getRoot();
-
-    tree.inOrder(root);
-}
+//int main()
+//{
+//    static BldInfo b1(1996,10,2.6), b2(1974,15,6.2), b3(2001,12,1.5);
+//    static BldInfo b4(1996,4,3.0), b5(1976,6,5.1), b6(2004,34,3.4);
+//
+//    BST<BldInfo,float> tree;
+//    tree.insertTree(&b1,b1.dist);
+//    tree.insertTree(&b2,b2.dist);
+//    tree.insertTree(&b3,b3.dist);
+//    tree.insertTree(&b4,b4.dist);
+//    tree.insertTree(&b5,b5.dist);
+//    tree.insertTree(&b6,b6.dist);
+//
+//    BSTnode<BldInfo,float>* root = tree.getRoot();
+//
+//    tree.inOrder(root);
+//}

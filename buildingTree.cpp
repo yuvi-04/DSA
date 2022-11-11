@@ -177,21 +177,21 @@ public:
         inOrder(temp->right);
     }
 };
-int main()
-{
-    BuildingTree b;
-
-    BldInfo b1(1996,10,2.6);
-    BldInfo b2(1974,15,6.2);
-    BldInfo b3(2001,12,1.5);
-    BldInfo b4(1996,4,3.0);
-    BldInfo b5(1976,6,5.1);
-    BldInfo b6(2004,34,3.4);
-
-    b.insert(b1); b.insert(b2); b.insert(b3); b.insert(b4); b.insert(b5); b.insert(b6);
-
-    Node* root = b.getRoot();
-
-    BstNode* node = b.getBST(root);
-    b.inOrder(node);
-}
+//int main()
+//{
+//    BuildingTree b;
+//
+//    BldInfo b1(1996,10,2.6);
+//    BldInfo b2(1974,15,6.2);
+//    BldInfo b3(2001,12,1.5);
+//    BldInfo b4(1996,4,3.0);
+//    BldInfo b5(1976,6,5.1);
+//    BldInfo b6(2004,34,3.4);
+//
+//    b.insert(b1); b.insert(b2); b.insert(b3); b.insert(b4); b.insert(b5); b.insert(b6);
+//
+//    Node* root = b.getRoot();
+//
+//    BstNode* node = b.getBST(root);
+//    b.inOrder(node);
+//}
