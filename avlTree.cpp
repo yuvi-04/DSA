@@ -77,17 +77,21 @@ public:
 			root = temp;
 			return;
 		}
-		Node* p = root, *q;
+		Node* p = root, *q, *prob = NULL;
 		while(p != NULL)
 		{
 			if(x < p->info)
 			{
 				q = p;
+				if(getBalance(p) == 1)
+                    prob = p;
 				p = p->left;
 			}
 			else
 			{
 				q = p;
+				if(getBalance(p) == -1)
+                    prob = p;
 				p = p->right;
 			}
 		}
@@ -95,32 +99,35 @@ public:
 			q->left = temp;
 		else
 			q->right = temp;
-			
-		temp->height = 1 + maxNum(height(temp->left),height(temp->right));
-		
-		int bal = getBalance(temp);
-		
-		//ll case
-		if(bal > 1 && x < root->left->info)
-			root = rightRotate(root);
-		
-		//rr case
-		if(bal < -1 && x > root->right->info)
-			root = leftRotate(root);
-		
-		//lr case
-		if(bal > 1 && x > root->left->info)
-		{
-			root->left = leftRotate(root->left);
-			root = rightRotate(root);
-		}
-		
-		//rl case
-		if(bal < -1 && x < root->right->info)
-		{
-			root->right = rightRotate(root->right);
-			root = leftRotate(root);
-		}
+
+		q->height = 1 + maxNum(height(temp->left),height(temp->right));
+
+		if(prob != NULL)
+        {
+            int bal = getBalance(prob);
+
+            //ll case
+            if(bal > 1 && x < prob->left->info)
+                prob = rightRotate(prob);
+
+            //rr case
+            if(bal < -1 && x > prob->right->info)
+                prob = leftRotate(prob);
+
+            //lr case
+            if(bal > 1 && x > prob->left->info)
+            {
+                prob->left = leftRotate(prob->left);
+                prob = rightRotate(prob);
+            }
+
+            //rl case
+            if(bal < -1 && x < prob->right->info)
+            {
+                prob->right = rightRotate(prob->right);
+                prob = leftRotate(prob);
+            }
+        }
     }
     void preOrder(Node* p)
     {
@@ -131,7 +138,7 @@ public:
     	preOrder(p->right);
 	}
 };
-int main()
+/*int main()
 {
 	AVLtree tree;
 	tree.insert(10);
@@ -140,8 +147,8 @@ int main()
 	tree.insert(40);
 	tree.insert(50);
 	tree.insert(25);
-	
+
 	Node* root = tree.getRoot();
-	
+
 	tree.preOrder(root);
-}
+}*/
