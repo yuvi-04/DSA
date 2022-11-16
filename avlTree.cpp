@@ -5,12 +5,14 @@ struct Node
     int info;
     Node* left;
     Node* right;
+    Node* parent;
     int height;
     Node(int info)
     {
         this->info = info;
         left = NULL;
         right = NULL;
+        parent = NULL;
         height = 1;
     }
 };
@@ -35,6 +37,9 @@ private:
 
         x->right = y;
         y->left = t;
+
+        x->parent = x->parent->parent;
+        y->parent = x;
 
         y->height = maxNum(height(y->left),height(y->right)) + 1;
         x->height = maxNum(height(x->left),height(x->right)) + 1;
@@ -100,7 +105,15 @@ public:
 		else
 			q->right = temp;
 
-		q->height = 1 + maxNum(height(temp->left),height(temp->right));
+        temp->parent = q;
+
+        Node* pr = temp->parent;
+        while(pr != NULL)
+        {
+            pr->height = 1 + maxNum(height(pr->left),height(pr->right));
+            cout<<pr->info<<" height changed : "<<pr->height<<endl;
+            pr = pr->parent;
+        }
 
 		if(prob != NULL)
         {
@@ -108,11 +121,35 @@ public:
 
             //ll case
             if(bal > 1 && x < prob->left->info)
-                prob = rightRotate(prob);
+            {
+                if(prob == root)
+                {
+                    prob = rightRotate(prob);
+                    root = prob;
+                }
+                else
+                {
+                    Node* a = prob->parent;
+                    prob = rightRotate(prob);
+                    a->left = prob;
+                }
+            }
 
             //rr case
             if(bal < -1 && x > prob->right->info)
-                prob = leftRotate(prob);
+            {
+                if(prob == root)
+                {
+                    prob = leftRotate(prob);
+                    root = prob;
+                }
+                else
+                {
+                    Node* a = prob->parent;
+                    prob = leftRotate(prob);
+                    a->right = prob;
+                }
+            }
 
             //lr case
             if(bal > 1 && x > prob->left->info)
@@ -138,17 +175,25 @@ public:
     	preOrder(p->right);
 	}
 };
-/*int main()
+int main()
 {
 	AVLtree tree;
-	tree.insert(10);
-	tree.insert(20);
-	tree.insert(30);
-	tree.insert(40);
 	tree.insert(50);
-	tree.insert(25);
+	tree.insert(40);
+	tree.insert(30);
+	tree.insert(20);
+	tree.insert(10);
+	tree.insert(8);
+	tree.insert(6);
+	tree.insert(2);
+	tree.insert(7);
+	tree.insert(1);
+	tree.insert(60);
+	tree.insert(70);
+	tree.insert(80);
 
 	Node* root = tree.getRoot();
 
+    cout<<endl;
 	tree.preOrder(root);
-}*/
+}
