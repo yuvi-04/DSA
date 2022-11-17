@@ -36,13 +36,14 @@ private:
         Node* t = x->right;
 
         x->right = y;
-        y->left = t;
+        y->left = x;
+        if(y != NULL)
+            y->parent = x;
+        if(t != NULL)
+            t->parent = y;
 
-        x->parent = x->parent->parent;
-        y->parent = x;
-
-        y->height = maxNum(height(y->left),height(y->right)) + 1;
-        x->height = maxNum(height(x->left),height(x->right)) + 1;
+//        y->height = maxNum(height(y->left),height(y->right)) + 1;
+//        x->height = maxNum(height(x->left),height(x->right)) + 1;
 
         return x;
     }
@@ -53,9 +54,13 @@ private:
 
         x->left = y;
         y->right = t;
+        if(y != NULL)
+            y->parent = x;
+        if(t != NULL)
+            t->parent = y;
 
-        y->height = maxNum(height(y->left),height(y->right)) + 1;
-        x->height = maxNum(height(x->left),height(x->right)) + 1;
+//        y->height = maxNum(height(y->left),height(y->right)) + 1;
+//        x->height = maxNum(height(x->left),height(x->right)) + 1;
 
         return x;
     }
@@ -118,6 +123,8 @@ public:
 		if(prob != NULL)
         {
             int bal = getBalance(prob);
+            cout<<"balance of problem node : "<<bal<<endl;
+            cout<<"prob node : "<<prob->info<<endl;
 
             //ll case
             if(bal > 1 && x < prob->left->info)
@@ -126,6 +133,7 @@ public:
                 {
                     prob = rightRotate(prob);
                     root = prob;
+                    root->parent = NULL;
                 }
                 else
                 {
@@ -142,6 +150,7 @@ public:
                 {
                     prob = leftRotate(prob);
                     root = prob;
+                    root->parent = NULL;
                 }
                 else
                 {
@@ -161,10 +170,25 @@ public:
             //rl case
             if(bal < -1 && x < prob->right->info)
             {
-                prob->right = rightRotate(prob->right);
-                prob = leftRotate(prob);
+                if(prob == root)
+                {
+                    Node* a = rightRotate(prob->right);
+                    prob->right = a;
+                    prob = leftRotate(prob);
+                    root = prob;
+                    root->parent = NULL;
+                }
+                else
+                {
+                    Node* pr = prob->parent;
+                    Node* a = rightRotate(prob->right);
+                    prob->right = a;
+                    prob = leftRotate(prob);
+                    pr->right = prob;
+                }
             }
         }
+        prob = NULL;
     }
     void preOrder(Node* p)
     {
@@ -175,25 +199,18 @@ public:
     	preOrder(p->right);
 	}
 };
-int main()
-{
-	AVLtree tree;
-	tree.insert(50);
-	tree.insert(40);
-	tree.insert(30);
-	tree.insert(20);
-	tree.insert(10);
-	tree.insert(8);
-	tree.insert(6);
-	tree.insert(2);
-	tree.insert(7);
-	tree.insert(1);
-	tree.insert(60);
-	tree.insert(70);
-	tree.insert(80);
-
-	Node* root = tree.getRoot();
-
-    cout<<endl;
-	tree.preOrder(root);
-}
+//int main()
+//{
+//	AVLtree tree;
+//	tree.insert(50);
+//	tree.insert(60);
+//	tree.insert(55);
+//	tree.insert(70);
+//	tree.insert(65);
+//	tree.insert(68);
+//
+//	Node* root = tree.getRoot();
+//
+//    cout<<endl;
+//	tree.preOrder(root);
+//}
