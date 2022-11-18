@@ -5,45 +5,30 @@ struct Node
     int info;
     Node* left;
     Node* right;
-    Node* parent;
-    int height;
+    int bal;
     Node(int info)
     {
         this->info = info;
         left = NULL;
         right = NULL;
-        parent = NULL;
-        height = 1;
+        bal = 0;
     }
 };
 class AVLtree
 {
 private:
     Node* root;
-    int height(Node* n)
-    {
-        if(n == NULL)
-            return 0;
-        return n->height;
-    }
-    int maxNum(int a,int b)
-    {
-        return (a > b) ? a: b;
-    }
+
     Node* rightRotate(Node* y)
     {
         Node* x = y->left;
         Node* t = x->right;
 
         x->right = y;
-        y->left = x;
-        if(y != NULL)
-            y->parent = x;
-        if(t != NULL)
-            t->parent = y;
+        y->left = t;
 
-//        y->height = maxNum(height(y->left),height(y->right)) + 1;
-//        x->height = maxNum(height(x->left),height(x->right)) + 1;
+        y->bal--;
+        x->bal--;
 
         return x;
     }
@@ -54,21 +39,11 @@ private:
 
         x->left = y;
         y->right = t;
-        if(y != NULL)
-            y->parent = x;
-        if(t != NULL)
-            t->parent = y;
 
-//        y->height = maxNum(height(y->left),height(y->right)) + 1;
-//        x->height = maxNum(height(x->left),height(x->right)) + 1;
+        y->bal++;
+        x->bal++;
 
         return x;
-    }
-    int getBalance(Node* n)
-    {
-        if(n == NULL)
-            return 0;
-        return (height(n->left) - height(n->right));
     }
 public:
     AVLtree()
@@ -87,105 +62,270 @@ public:
 			root = temp;
 			return;
 		}
-		Node* p = root, *q, *prob = NULL;
+		Node* p = root, *q = NULL, *prob = NULL,*pr = NULL;
+		bool htchanged = false;
 		while(p != NULL)
 		{
 			if(x < p->info)
 			{
-				q = p;
-				if(getBalance(p) == 1)
+				if(p->bal != 0)
+                {
                     prob = p;
+                    pr = q;
+                }
+                q = p;
 				p = p->left;
 			}
 			else
 			{
-				q = p;
-				if(getBalance(p) == -1)
+				if(p->bal != 0)
+                {
                     prob = p;
+                    pr = q;
+                }
+                q = p;
 				p = p->right;
 			}
 		}
 		if(x < q->info)
-			q->left = temp;
-		else
-			q->right = temp;
-
-        temp->parent = q;
-
-        Node* pr = temp->parent;
-        while(pr != NULL)
         {
-            pr->height = 1 + maxNum(height(pr->left),height(pr->right));
-            cout<<pr->info<<" height changed : "<<pr->height<<endl;
-            pr = pr->parent;
+            q->left = temp;
+            if(q->right)
+                htchanged = false;
+            else
+                htchanged = true;
+        }
+		else
+        {
+            q->right = temp;
+            if(q->left)
+                htchanged = false;
+            else
+                htchanged = true;
         }
 
-		if(prob != NULL)
+        if(prob == NULL && htchanged)
         {
-            int bal = getBalance(prob);
-            cout<<"balance of problem node : "<<bal<<endl;
-            cout<<"prob node : "<<prob->info<<endl;
-
-            //ll case
-            if(bal > 1 && x < prob->left->info)
+            Node* lastUnchanged = root;
+            while(lastUnchanged != temp)
             {
-                if(prob == root)
+                if(temp->info > lastUnchanged->info)
                 {
-                    prob = rightRotate(prob);
-                    root = prob;
-                    root->parent = NULL;
+                    lastUnchanged->bal = lastUnchanged->bal - 1;
+                    lastUnchanged = lastUnchanged->right;
                 }
                 else
                 {
-                    Node* a = prob->parent;
-                    prob = rightRotate(prob);
-                    a->left = prob;
+                    lastUnchanged->bal = lastUnchanged->bal + 1;
+                    lastUnchanged = lastUnchanged->left;
                 }
+            }
+        }
+
+        if(!htchanged && prob != NULL)
+        {
+            q->bal = 0;
+            return;
+        }
+
+		if(htchanged && prob)
+        {
+            //ll case
+            if(prob->left && x < prob->left->info)
+            {
+                Node* lastUnchanged = prob;
+                lastUnchanged = lastUnchanged->left;
+                while(lastUnchanged != temp)
+                {
+                    if(temp->info > lastUnchanged->info)
+                    {
+                        lastUnchanged->bal = lastUnchanged->bal - 1;
+                        lastUnchanged = lastUnchanged->right;
+                    }
+                    else
+                    {
+                        lastUnchanged->bal = lastUnchanged->bal + 1;
+                        lastUnchanged = lastUnchanged->left;
+                    }
+                }
+                if(prob->bal == 1)
+                {
+                    if(prob == root)
+                    {
+                       prob = rightRotate(prob);
+                       root = prob;
+                    }
+                    else
+                    {
+                        prob = rightRotate(prob);
+                        pr->left = prob;
+                    }
+                }
+                return;
             }
 
             //rr case
-            if(bal < -1 && x > prob->right->info)
+            if(prob->right && x > prob->right->info)
             {
-                if(prob == root)
+                Node* lastUnchanged = prob;
+                lastUnchanged = lastUnchanged->right;
+                while(lastUnchanged != temp)
                 {
-                    prob = leftRotate(prob);
-                    root = prob;
-                    root->parent = NULL;
+                    if(temp->info > lastUnchanged->info)
+                    {
+                        lastUnchanged->bal = lastUnchanged->bal - 1;
+                        lastUnchanged = lastUnchanged->right;
+                    }
+                    else
+                    {
+                        lastUnchanged->bal = lastUnchanged->bal + 1;
+                        lastUnchanged = lastUnchanged->left;
+                    }
                 }
-                else
+                if(prob->bal == -1)
                 {
-                    Node* a = prob->parent;
-                    prob = leftRotate(prob);
-                    a->right = prob;
+                    if(prob == root)
+                    {
+                       prob = leftRotate(prob);
+                       root = prob;
+                    }
+                    else
+                    {
+                        prob = leftRotate(prob);
+                        pr->right = prob;
+                    }
                 }
-            }
-
-            //lr case
-            if(bal > 1 && x > prob->left->info)
-            {
-                prob->left = leftRotate(prob->left);
-                prob = rightRotate(prob);
+                return;
             }
 
             //rl case
-            if(bal < -1 && x < prob->right->info)
+            if(prob->right && prob->right->left && x < prob->right->info)
             {
-                if(prob == root)
+                Node* lastUnchanged = prob;
+                lastUnchanged = lastUnchanged->right;
+                while(lastUnchanged != temp)
                 {
-                    Node* a = rightRotate(prob->right);
-                    prob->right = a;
-                    prob = leftRotate(prob);
-                    root = prob;
-                    root->parent = NULL;
+                    if(temp->info > lastUnchanged->info)
+                    {
+                        lastUnchanged->bal = lastUnchanged->bal - 1;
+                        lastUnchanged = lastUnchanged->right;
+                    }
+                    else
+                    {
+                        lastUnchanged->bal = lastUnchanged->bal + 1;
+                        lastUnchanged = lastUnchanged->left;
+                    }
                 }
-                else
+                if(prob->bal == -1)
                 {
-                    Node* pr = prob->parent;
-                    Node* a = rightRotate(prob->right);
-                    prob->right = a;
-                    prob = leftRotate(prob);
-                    pr->right = prob;
+                    if(prob == root)
+                    {
+                        Node* pright = prob->right;
+                        Node* rep = prob->right->left;
+
+                        if(rep->right)
+                            pright->left = rep->right;
+                        if(rep->left)
+                            pright->left = rep->left;
+
+                        rep->left = prob;
+                        rep->right = pright;
+                        prob->right = NULL;
+
+                        rep->bal = 0;
+                        prob->bal = prob->bal - 2;
+                        pright->bal--;
+
+                        root = rep;
+                    }
+                    else
+                    {
+                        Node* pright = prob->right;
+                        Node* rep = prob->right->left;
+
+                        if(rep->right)
+                            pright->left = rep->right;
+                        if(rep->left)
+                            pright->left = rep->left;
+
+                        rep->left = prob;
+                        rep->right = pright;
+                        prob->right = NULL;
+
+                        rep->bal = 0;
+                        prob->bal = prob->bal - 2;
+                        pright->bal--;
+
+                        pr->right = rep;
+                    }
                 }
+                return;
+            }
+
+            //lr case
+            if(prob->left && prob->left->right && x > prob->left->info)
+            {
+                Node* lastUnchanged = prob;
+                lastUnchanged = lastUnchanged->left;
+                while(lastUnchanged != temp)
+                {
+                    if(temp->info > lastUnchanged->info)
+                    {
+                        lastUnchanged->bal = lastUnchanged->bal - 1;
+                        lastUnchanged = lastUnchanged->right;
+                    }
+                    else
+                    {
+                        lastUnchanged->bal = lastUnchanged->bal + 1;
+                        lastUnchanged = lastUnchanged->left;
+                    }
+                }
+                if(prob->bal == 1)
+                {
+                    if(prob == root)
+                    {
+                        Node* pleft = prob->left;
+                        Node* rep = prob->left->right;
+                        if(rep->left)
+                            prob->left = rep->left;
+                        if(rep->right)
+                            prob->left = rep->right;
+                        else
+                            prob->left = NULL;
+
+                        rep->left = pleft;
+                        rep->right = prob;
+                        pleft->right = NULL;
+
+                        rep->bal = 0;
+                        prob->bal--;
+                        pleft->bal = pleft->bal + 2;
+
+                        root = rep;
+                    }
+                    else
+                    {
+                        Node* pleft = prob->left;
+                        Node* rep = prob->left->right;
+                        if(rep->left)
+                            prob->left = rep->left;
+                        if(rep->right)
+                            prob->left = rep->right;
+                        else
+                            prob->left = NULL;
+
+                        rep->left = pleft;
+                        rep->right = prob;
+                        pleft->right = NULL;
+
+                        rep->bal = 0;
+                        prob->bal--;
+                        pleft->bal = pleft->bal + 2;
+
+                        pr->left = rep;
+                    }
+                }
+                return;
             }
         }
         prob = NULL;
@@ -199,18 +339,18 @@ public:
     	preOrder(p->right);
 	}
 };
-//int main()
-//{
-//	AVLtree tree;
-//	tree.insert(50);
-//	tree.insert(60);
-//	tree.insert(55);
-//	tree.insert(70);
-//	tree.insert(65);
-//	tree.insert(68);
-//
-//	Node* root = tree.getRoot();
-//
-//    cout<<endl;
-//	tree.preOrder(root);
-//}
+int main()
+{
+	AVLtree tree;
+	tree.insert(50);
+	tree.insert(25);
+	tree.insert(75);
+	tree.insert(67);
+	tree.insert(100);
+	tree.insert(69);
+
+	Node* root = tree.getRoot();
+
+    cout<<endl;
+	tree.preOrder(root);
+}
